@@ -6,11 +6,7 @@ from run_util import run_puzzle
 
 
 def parse_data(data):
-    pairs = (
-        (hit[0], hit[1])
-        for hit in findall('{:d}   {:d}', data)
-    )
-    return zip(*pairs)
+    return zip(*findall('{:d}   {:d}', data))
 
 
 def part_a(data):
