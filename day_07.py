@@ -30,10 +30,10 @@ def is_valid(numbers, expected_result, part_b=False):
                 if backtrack(index - 1, remaining_result):
                     return True
 
-        if backtrack(index - 1, current_result - last_number):
+        if current_result % last_number == 0 and backtrack(index - 1, current_result // last_number):
             return True
 
-        if current_result % last_number == 0 and backtrack(index - 1, current_result // last_number):
+        if backtrack(index - 1, current_result - last_number):
             return True
 
         return False
@@ -46,7 +46,7 @@ def part_a(data):
 
     return sum(
         result
-        for numbers, result  in data
+        for numbers, result in data
         if is_valid(numbers, result)
     )
 
@@ -56,7 +56,7 @@ def part_b(data):
 
     return sum(
         result
-        for numbers, result  in data
+        for numbers, result in data
         if is_valid(numbers, result, part_b=True)
     )
 
