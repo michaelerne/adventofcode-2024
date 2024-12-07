@@ -2,13 +2,10 @@ from run_util import run_puzzle
 
 
 def parse_data(data):
-    lines = []
-    for line in data.strip().split('\n'):
-        left, right = line.split(': ')
-        result = int(left)
-        numbers = list(map(int, right.split()))
-        lines.append((result, numbers))
-    return lines
+    return (
+        (tuple(int(num) for num in right.split()), int(left))
+        for left, right in (line.split(': ') for line in data.strip().split('\n'))
+    )
 
 
 def is_valid(numbers, expected_result, part_b=False):
@@ -16,20 +13,27 @@ def is_valid(numbers, expected_result, part_b=False):
         if index < 0:
             return current_result == 0
 
-        last_num = numbers[index]
+        last_number = numbers[index]
 
         if part_b:
-            str_result = str(current_result)
-            str_last_num = str(last_num)
-            if str_result.endswith(str_last_num):
-                truncated_result = str_result[:-len(str_last_num)]
-                if truncated_result.isdigit() and backtrack(index - 1, int(truncated_result)):
+            remaining_last_number = last_number
+            remaining_result = current_result
+            valid = True
+            while remaining_last_number > 0:
+                if remaining_last_number % 10 == remaining_result % 10:
+                    remaining_result //= 10
+                    remaining_last_number //= 10
+                else:
+                    valid = False
+                    break
+            if valid:
+                if backtrack(index - 1, remaining_result):
                     return True
 
-        if backtrack(index - 1, current_result - last_num):
+        if backtrack(index - 1, current_result - last_number):
             return True
 
-        if current_result % last_num == 0 and backtrack(index - 1, current_result // last_num):
+        if current_result % last_number == 0 and backtrack(index - 1, current_result // last_number):
             return True
 
         return False
@@ -42,7 +46,7 @@ def part_a(data):
 
     return sum(
         result
-        for result, numbers in data
+        for numbers, result  in data
         if is_valid(numbers, result)
     )
 
@@ -52,7 +56,7 @@ def part_b(data):
 
     return sum(
         result
-        for result, numbers in data
+        for numbers, result  in data
         if is_valid(numbers, result, part_b=True)
     )
 
