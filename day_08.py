@@ -54,9 +54,6 @@ def part_b(data):
 
         for (x1, y1), (x2, y2) in pairs:
             dx, dy = x2 - x1, y2 - y1
-            g = gcd(dx, dy)
-            dx, dy = dx // g, dy // g
-
             for direction in (-1, 1):
                 px, py = x1, y1
                 while (px + direction * dx) in valid_x and (py + direction * dy) in valid_y:
