@@ -2,29 +2,38 @@ from run_util import run_puzzle
 
 
 def parse_data(data):
+    lines = [l for l in data.strip().split('\n') if l]
     robots = []
-    for line in data.strip().split('\n'):
-        if not line.strip():
-            continue
+    for line in lines:
         p_part, v_part = line.split()
-        x_str = p_part.split('=')[1]
-        dx_str = v_part.split('=')[1]
-        x, y = map(int, x_str.split(','))
-        dx, dy = map(int, dx_str.split(','))
+        x, y = map(int, p_part[2:].split(','))
+        dx, dy = map(int, v_part[2:].split(','))
         robots.append((x, y, dx, dy))
     return robots
+
+
+def minimal_arc_length(coords, length):
+    coords.sort()
+    n = len(coords)
+    extended = coords + [c + length for c in coords]
+    return min(extended[i + n - 1] - extended[i] for i in range(n))
+
+
+def clustering_time(base, length):
+    return min(
+        range(length),
+        key=lambda t: minimal_arc_length([(p + v * t) % length for p, v in base], length)
+    )
 
 
 def part_a(data):
     robots = parse_data(data)
     if len(robots) == 12:
-
         width, height = 11, 7
     else:
         width, height = 101, 103
 
     time = 100
-
     final_positions = []
     for x, y, dx, dy in robots:
         final_x = (x + dx * time) % width
@@ -53,19 +62,14 @@ def part_b(data):
     robots = parse_data(data)
     width, height = 101, 103
 
-    total_robots = len(robots)
+    t_x = clustering_time([(r[0], r[2]) for r in robots], width)
+    t_y = clustering_time([(r[1], r[3]) for r in robots], height)
 
-    time = 0
-    positions = set()
-    while len(set(positions)) != total_robots:
-        time += 1
-        positions = set()
-        for x, y, dx, dy in robots:
-            fx = (x + dx * time) % width
-            fy = (y + dy * time) % height
-            positions.add((fx, fy))
+    diff = (t_y - t_x) % height
+    a = diff * 51 % height
+    ttCt = width * a + t_x  # time to Christmas tree
 
-    return time
+    return ttCt
 
 
 def main():
