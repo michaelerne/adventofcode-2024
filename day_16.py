@@ -60,11 +60,14 @@ def get_min_cost(dist, end):
     return min(dist[end_x][end_y])
 
 
-def find_tiles_on_best_paths(grid, costs, end):
+def find_tiles_on_best_paths(grid, costs, start, end):
     height, width = len(grid), len(grid[0])
     min_cost = get_min_cost(costs, end)
 
     on_path = [[[False] * 4 for _ in range(width)] for __ in range(height)]
+    sx, sy = start
+    on_path[sx][sy][1] = True
+
     queue = deque()
 
     end_x, end_y = end
@@ -111,8 +114,8 @@ def part_a(data):
 
 def part_b(data):
     grid, start, end = parse_data(data)
-    costs = run_dijkstra(grid,start)
-    return find_tiles_on_best_paths(grid, costs, end)
+    costs = run_dijkstra(grid, start)
+    return find_tiles_on_best_paths(grid, costs, start, end)
 
 
 def main():
