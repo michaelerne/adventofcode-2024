@@ -59,7 +59,7 @@ def part_a(data):
 
 
 def find_quine(program):
-    stack = [(len(program)-1, 0, 0)]
+    stack = [(len(program) - 1, 0, 0)]
     while stack:
         i, acc_a, candidate_start = stack.pop()
         for candidate in range(candidate_start, 8):
@@ -68,8 +68,8 @@ def find_quine(program):
             if result == program[i:]:
                 if i == 0:
                     return a
-                stack.append((i, acc_a, candidate+1))
-                stack.append((i-1, a, 0))
+                stack.append((i, acc_a, candidate + 1))
+                stack.append((i - 1, a, 0))
                 break
 
 
@@ -79,7 +79,13 @@ def part_b(data):
 
 
 def main():
-    examples = []
+    examples = [
+        ("""Register A: 729
+Register B: 0
+Register C: 0
+
+Program: 0,1,5,4,3,0""", "4,6,3,5,6,3,5,2,1,0", None)
+    ]
     day = int(__file__.split('/')[-1].split('.')[0][-2:])
     run_puzzle(day, part_a, part_b, examples)
 
