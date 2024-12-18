@@ -92,13 +92,13 @@ def part_b(data):
             for dx, dy in DIRECTIONS:
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < grid_size and 0 <= ny < grid_size and not visited[ny][nx]:
-                    ctime = corruption_times[ny][nx]
-                    if ctime >= t:
+                    corruption_time = corruption_times[ny][nx]
+                    if corruption_time >= t:
                         visited[ny][nx] = True
                         queue[t].append((nx, ny))
                     else:
                         visited[ny][nx] = True
-                        queue[ctime].append((nx, ny))
+                        queue[corruption_time].append((nx, ny))
 
 
 def main():
