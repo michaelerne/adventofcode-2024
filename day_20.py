@@ -1,5 +1,7 @@
 from collections import deque
+
 from run_util import run_puzzle
+
 
 def parse_data(data):
     lines = data.strip('\n').split('\n')
@@ -14,6 +16,7 @@ def parse_data(data):
                 end = (y, x)
     return grid, start, end
 
+
 def bfs_distances(grid, start_positions):
     rows = len(grid)
     cols = len(grid[0])
@@ -21,16 +24,17 @@ def bfs_distances(grid, start_positions):
     q = deque(start_positions)
     for (sx, sy) in start_positions:
         dist[sx][sy] = 0
-    directions = [(-1,0),(1,0),(0,-1),(0,1)]
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     while q:
         x, y = q.popleft()
         for dx, dy in directions:
-            nx, ny = x+dx, y+dy
+            nx, ny = x + dx, y + dy
             if 0 <= nx < rows and 0 <= ny < cols:
                 if grid[nx][ny] != '#' and dist[nx][ny] is None:
                     dist[nx][ny] = dist[x][y] + 1
                     q.append((nx, ny))
     return dist
+
 
 def get_cheats(grid, start, end, cheat_length, threshold=100):
     dist_from_start = bfs_distances(grid, [start])
@@ -67,17 +71,21 @@ def get_cheats(grid, start, end, cheat_length, threshold=100):
 
     return above_threshold
 
+
 def part_a(data):
     grid, start, end = parse_data(data)
     return get_cheats(grid, start, end, cheat_length=2, threshold=100)
+
 
 def part_b(data):
     grid, start, end = parse_data(data)
     return get_cheats(grid, start, end, cheat_length=20, threshold=100)
 
+
 def main():
     day = int(__file__.split('/')[-1].split('.')[0][-2:])
     run_puzzle(day, part_a, part_b, [])
+
 
 if __name__ == '__main__':
     main()
