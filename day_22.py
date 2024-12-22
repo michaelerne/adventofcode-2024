@@ -1,62 +1,68 @@
-from run_util import run_puzzle
-
 MASK_24 = (1 << 24) - 1
-BASE = 19
-OFFSET = 9
-SIZE = BASE ** 4
+NUM_SEQUENCES = 20 ** 4
 
 
-def parse_data(data):
+def parse_data(data: str) -> list[int]:
     lines = data.strip().splitlines()
     return [int(line) for line in lines if line.strip()]
 
 
-def part_a(data):
-    data = parse_data(data)
+def part_a(data: str) -> int:
+    buyers = parse_data(data)
 
     total = 0
-    for secret in data:
+    for secret in buyers:
         for _ in range(2000):
             secret = (secret ^ (secret << 6)) & MASK_24
-            secret = secret ^ (secret >> 5)
+            secret ^= (secret >> 5)
             secret = (secret ^ (secret << 11)) & MASK_24
         total += secret
 
     return total
 
 
-def part_b(data):
+def part_b(data: str) -> int:
     buyers = parse_data(data)
 
-    sequence_sale_sums = [0] * SIZE
-    last_buyer_for_sequence = [0] * SIZE
+    sequence_sale_sums = [0] * NUM_SEQUENCES
+    last_buyer_for_sequence = [0] * NUM_SEQUENCES
 
-    for buyer_id, secret in enumerate(buyers, start=1):
+    buyer_id = 0
+    for secret in buyers:
+        buyer_id += 1
 
-        price_current = secret % 10
+        p_current = secret % 10
 
-        diff0 = diff1 = diff2 = None
-
-        for i in range(2000):
+        window = 0
+        for i in range(3):
             secret = (secret ^ (secret << 6)) & MASK_24
-            secret = secret ^ (secret >> 5)
+            secret ^= (secret >> 5)
             secret = (secret ^ (secret << 11)) & MASK_24
 
-            price_new = secret % 10
-            diff3 = price_new - price_current
+            p_new = secret % 10
+            diff = (p_new - p_current) % 20
 
-            if i >= 3:
-                index = (diff0 + OFFSET)
-                index = index * 19 + (diff1 + OFFSET)
-                index = index * 19 + (diff2 + OFFSET)
-                index = index * 19 + (diff3 + OFFSET)
+            window = (window * 20 + diff) % NUM_SEQUENCES
+            p_current = p_new
 
-                if last_buyer_for_sequence[index] != buyer_id:
-                    sequence_sale_sums[index] += price_new
-                    last_buyer_for_sequence[index] = buyer_id
+        for i in range(1997):
+            if last_buyer_for_sequence[window] != buyer_id:
+                sequence_sale_sums[window] += p_current
+                last_buyer_for_sequence[window] = buyer_id
 
-            diff0, diff1, diff2 = diff1, diff2, diff3
-            price_current = price_new
+            secret = (secret ^ (secret << 6)) & MASK_24
+            secret ^= (secret >> 5)
+            secret = (secret ^ (secret << 11)) & MASK_24
+
+            p_new = secret % 10
+            diff = (p_new - p_current) % 20
+            window = (window * 20 + diff) % NUM_SEQUENCES
+
+            p_current = p_new
+
+        if last_buyer_for_sequence[window] != buyer_id:
+            sequence_sale_sums[window] += p_current
+            last_buyer_for_sequence[window] = buyer_id
 
     return max(sequence_sale_sums)
 
@@ -83,6 +89,7 @@ def main():
         )
     ]
     day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    from run_util import run_puzzle
     run_puzzle(day, part_a, part_b, examples)
 
 
