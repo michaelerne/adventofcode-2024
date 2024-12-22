@@ -1,8 +1,9 @@
-from collections import defaultdict
-
 from run_util import run_puzzle
 
-MASK_24 = 0xFFFFFF
+MASK_24 = (1 << 24) - 1
+BASE = 19
+OFFSET = 9
+SIZE = BASE ** 4
 
 
 def parse_data(data):
@@ -15,49 +16,49 @@ def part_a(data):
 
     total = 0
     for secret in data:
-        x = secret
         for _ in range(2000):
-            x ^= (x << 6) & MASK_24
-            x ^= (x >> 5)
-            x ^= (x << 11) & MASK_24
+            secret = (secret ^ (secret << 6)) & MASK_24
+            secret = secret ^ (secret >> 5)
+            secret = (secret ^ (secret << 11)) & MASK_24
+        total += secret
 
-        total += x
     return total
 
 
 def part_b(data):
-    data = parse_data(data)
+    buyers = parse_data(data)
 
-    global_sequence_sums = defaultdict(int)
+    sequence_sale_sums = [0] * SIZE
+    last_buyer_for_sequence = [0] * SIZE
 
-    for secret in data:
-        x = secret
+    for buyer_id, secret in enumerate(buyers, start=1):
 
-        seen_for_buyer = {}
+        price_current = secret % 10
 
-        price_current = x % 10
         diff0 = diff1 = diff2 = None
 
         for i in range(2000):
-            x ^= (x << 6) & MASK_24
-            x ^= (x >> 5)
-            x ^= (x << 11) & MASK_24
+            secret = (secret ^ (secret << 6)) & MASK_24
+            secret = secret ^ (secret >> 5)
+            secret = (secret ^ (secret << 11)) & MASK_24
 
-            price_new = x % 10
-
+            price_new = secret % 10
             diff3 = price_new - price_current
+
             if i >= 3:
-                seq = (diff0, diff1, diff2, diff3)
-                if seq not in seen_for_buyer:
-                    seen_for_buyer[seq] = price_new
+                index = (diff0 + OFFSET)
+                index = index * 19 + (diff1 + OFFSET)
+                index = index * 19 + (diff2 + OFFSET)
+                index = index * 19 + (diff3 + OFFSET)
+
+                if last_buyer_for_sequence[index] != buyer_id:
+                    sequence_sale_sums[index] += price_new
+                    last_buyer_for_sequence[index] = buyer_id
 
             diff0, diff1, diff2 = diff1, diff2, diff3
             price_current = price_new
 
-        for seq, sale_price in seen_for_buyer.items():
-            global_sequence_sums[seq] += sale_price
-
-    return max(global_sequence_sums.values())
+    return max(sequence_sale_sums)
 
 
 def main():
